@@ -1,0 +1,22 @@
+# Binari
+http-header-security-scanner
+
+# Git
+.git
+.gitignore
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# Docs generati (verranno rigenerati nel build)
+docs/
+
+# Test
+*_test.go
+
+# Temp
+*.tmp
+*.log

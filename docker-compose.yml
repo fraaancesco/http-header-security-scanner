@@ -1,0 +1,11 @@
+services:
+  http-header-scanner:
+    build: .
+    container_name: http-header-scanner
+    ports:
+      - "8081:8081"
+    environment:
+      - GIN_MODE=release
+      - SERVER_PORT=8081
+      - SCANNER_TIMEOUT=10
+    restart: unless-stopped

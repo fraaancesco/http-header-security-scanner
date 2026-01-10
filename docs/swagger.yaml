@@ -1,0 +1,134 @@
+basePath: /
+definitions:
+  handler.ErrorResponse:
+    description: Error response
+    properties:
+      error:
+        example: urls is required
+        type: string
+    type: object
+  handler.ScanRequest:
+    description: Request body for HTTP header security scan
+    properties:
+      bearer_token:
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        type: string
+      insecure:
+        example: false
+        type: boolean
+      timeout:
+        example: 10
+        type: integer
+      urls:
+        example:
+        - https://www.google.com
+        - https://github.com
+        items:
+          type: string
+        minItems: 1
+        type: array
+    required:
+    - urls
+    type: object
+  models.HeaderResult:
+    properties:
+      name:
+        type: string
+      present:
+        type: boolean
+      recommendation:
+        type: string
+      severity:
+        $ref: '#/definitions/models.Severity'
+      value:
+        type: string
+    type: object
+  models.Report:
+    properties:
+      results:
+        items:
+          $ref: '#/definitions/models.ScanResult'
+        type: array
+      scan_date:
+        type: string
+    type: object
+  models.ScanResult:
+    properties:
+      error:
+        type: string
+      headers:
+        items:
+          $ref: '#/definitions/models.HeaderResult'
+        type: array
+      status_code:
+        type: integer
+      summary:
+        $ref: '#/definitions/models.Summary'
+      url:
+        type: string
+    type: object
+  models.Severity:
+    enum:
+    - critical
+    - high
+    - medium
+    - low
+    - ok
+    type: string
+    x-enum-varnames:
+    - SeverityCritical
+    - SeverityHigh
+    - SeverityMedium
+    - SeverityLow
+    - SeverityOK
+  models.Summary:
+    properties:
+      failed:
+        type: integer
+      passed:
+        type: integer
+      score:
+        type: string
+      total_checks:
+        type: integer
+    type: object
+host: localhost:8081
+info:
+  contact:
+    email: support@example.com
+    name: API Support
+  description: A tool to scan URLs and analyze HTTP security headers configuration
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  title: HTTP Header Security Scanner API
+  version: "1.0"
+paths:
+  /scan:
+    post:
+      consumes:
+      - application/json
+      description: Analyzes one or more URLs and returns a report on their HTTP security
+        headers configuration
+      parameters:
+      - description: URLs to scan
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.ScanRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Report'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: Scan URLs for HTTP security headers
+      tags:
+      - scan
+swagger: "2.0"
