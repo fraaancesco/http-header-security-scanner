@@ -147,7 +147,3 @@ Environment variables:
 ├── docker-compose.yml
 └── Makefile
 ```
-
-## License
-
-MIT
