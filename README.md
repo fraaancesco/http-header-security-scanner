@@ -133,6 +133,16 @@ Environment variables:
 | `SCANNER_TIMEOUT` | 10 | Default scan timeout in seconds |
 | `SCANNER_INSECURE` | false | Default TLS verification setting |
 
+## Testing
+
+```bash
+# Run all tests
+make test
+
+# Run tests with coverage (fails if total coverage is below 100%)
+make coverage
+```
+
 ## Project Structure
 
 ```

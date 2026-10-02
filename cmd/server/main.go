@@ -1,9 +1,11 @@
 package main
 
 import (
+	"log"
+
+	_ "http-header-security-scanner/docs"
 	"http-header-security-scanner/internal/config"
 	"http-header-security-scanner/internal/handler"
-	_ "http-header-security-scanner/docs"
 
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
@@ -23,11 +25,25 @@ import (
 // @host      localhost:8081
 // @BasePath  /
 
+// runServer and fatal are variables so tests can replace them.
+var (
+	runServer = func(r *gin.Engine, addr string) error { return r.Run(addr) }
+	fatal     = log.Fatal
+)
+
 func main() {
 	cfg := config.Load()
 
 	gin.SetMode(cfg.Server.Mode)
 
+	r := newRouter(cfg)
+
+	if err := runServer(r, ":"+cfg.Server.Port); err != nil {
+		fatal(err)
+	}
+}
+
+func newRouter(cfg *config.Config) *gin.Engine {
 	r := gin.Default()
 
 	scanHandler := handler.NewScanHandler(cfg.Scanner.DefaultTimeout)
@@ -35,5 +51,5 @@ func main() {
 	r.POST("/scan", scanHandler.Scan)
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	r.Run(":" + cfg.Server.Port)
+	return r
 }

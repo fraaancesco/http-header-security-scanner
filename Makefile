@@ -1,4 +1,4 @@
-.PHONY: build run swagger clean install-tools
+.PHONY: build run swagger clean install-tools test coverage
 
 BINARY_NAME=http-header-security-scanner
 MAIN_PATH=./cmd/server
@@ -19,9 +19,21 @@ run: build
 run-only:
 	./$(BINARY_NAME)
 
+# Test (docs/ è generato e senza test: viene comunque misurato tramite -coverpkg)
+TEST_PKGS=$$(go list ./... | grep -v /docs)
+
+test:
+	go test -race -count=1 $(TEST_PKGS)
+
+# Test con coverage: fallisce se sotto il 100%
+coverage:
+	go test -race -count=1 -coverpkg=./... -coverprofile=coverage.out $(TEST_PKGS)
+	@go tool cover -func=coverage.out | tail -1
+	@go tool cover -func=coverage.out | tail -1 | grep -q '100.0%' || (echo "Coverage sotto il 100%" && exit 1)
+
 # Pulisci build artifacts
 clean:
-	rm -f $(BINARY_NAME)
+	rm -f $(BINARY_NAME) coverage.out
 	rm -rf docs/
 
 # Installa tool necessari
