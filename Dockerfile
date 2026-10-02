@@ -1,10 +1,7 @@
 # Build stage
-FROM golang:1.23-alpine AS builder
+FROM golang:1.27-alpine3.24 AS builder
 
 WORKDIR /app
-
-# Install swag to generate swagger
-RUN go install github.com/swaggo/swag/cmd/swag@latest
 
 COPY go.mod go.sum ./
 RUN go mod download
@@ -12,11 +9,12 @@ RUN go mod download
 COPY . .
 
 # Generate swagger and build
-RUN swag init -g cmd/server/main.go -o docs
+# swag is declared as a tool in go.mod, so its version follows the module
+RUN go tool swag init -g cmd/server/main.go -o docs
 RUN CGO_ENABLED=0 GOOS=linux go build -o http-header-security-scanner ./cmd/server
 
 # Runtime stage
-FROM alpine:3.19
+FROM alpine:3.24
 
 WORKDIR /app
 

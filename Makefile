@@ -1,4 +1,4 @@
-.PHONY: build run swagger clean install-tools test coverage install-hscan install-skill
+.PHONY: build run swagger clean test coverage install-hscan install-skill
 
 BINARY_NAME=http-header-security-scanner
 MAIN_PATH=./cmd/server
@@ -9,7 +9,7 @@ build: swagger
 
 # Solo generazione Swagger
 swagger:
-	swag init -g $(MAIN_PATH)/main.go -o docs
+	go tool swag init -g $(MAIN_PATH)/main.go -o docs
 
 # Build e run
 run: build
@@ -35,10 +35,6 @@ coverage:
 clean:
 	rm -f $(BINARY_NAME) coverage.out
 	rm -rf docs/
-
-# Installa tool necessari
-install-tools:
-	go install github.com/swaggo/swag/cmd/swag@latest
 
 # Installa la CLI hscan in $(go env GOPATH)/bin
 install-hscan:

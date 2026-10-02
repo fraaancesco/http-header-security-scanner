@@ -12,7 +12,7 @@ import (
 	"net/url"
 	"os"
 	"regexp"
-	"sort"
+	"slices"
 	"strings"
 
 	"go.yaml.in/yaml/v3"
@@ -103,10 +103,10 @@ func Parse(data []byte) (*Spec, error) {
 				p.Methods = append(p.Methods, strings.ToUpper(key))
 			}
 		}
-		sort.Strings(p.Methods)
+		slices.Sort(p.Methods)
 		s.Paths = append(s.Paths, p)
 	}
-	sort.Slice(s.Paths, func(i, j int) bool { return s.Paths[i].Template < s.Paths[j].Template })
+	slices.SortFunc(s.Paths, func(a, b Path) int { return strings.Compare(a.Template, b.Template) })
 	return s, nil
 }
 

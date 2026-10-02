@@ -150,13 +150,11 @@ func scanAll(endpoints []spec.Endpoint, opts scanner.Options, workers int) []mod
 	jobs := make(chan int)
 	var wg sync.WaitGroup
 	for range workers {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+		wg.Go(func() {
 			for i := range jobs {
 				results[i] = scanner.Scan(endpoints[i].URL, opts)
 			}
-		}()
+		})
 	}
 	for i := range endpoints {
 		jobs <- i

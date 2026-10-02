@@ -13,7 +13,7 @@ The `hscan` tool does the work: it reads the spec, calls every documented path a
 command -v hscan || go install github.com/fraaancesco/http-header-security-scanner/cmd/hscan@latest
 ```
 
-It needs Go 1.25+; the binary lands in `$(go env GOPATH)/bin`. If Go is missing, tell the user and stop.
+It needs Go 1.27+ (Go 1.21+ downloads that toolchain automatically); the binary lands in `$(go env GOPATH)/bin`. If Go is missing, tell the user and stop.
 
 ## 2. Find the spec
 

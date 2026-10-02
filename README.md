@@ -39,7 +39,7 @@ The `header-scan` skill turns "check the security headers of this API" into a si
 ### 1. Prerequisites
 
 - [Claude Code](https://code.claude.com) (CLI, desktop app, IDE extension or web).
-- [Go](https://go.dev/dl/) 1.25 or later, used to install `hscan`.
+- [Go](https://go.dev/dl/) 1.27 or later, used to install `hscan` (Go 1.21+ downloads the 1.27 toolchain automatically).
 - A project with a Swagger 2.0 or OpenAPI 3 spec, either as a file (`swagger.json`, `openapi.yaml`, ...) or served by the running app (`/v3/api-docs`, `/swagger/doc.json`, `/openapi.json`, ...).
 
 ### 2. Install the `hscan` CLI
@@ -209,11 +209,10 @@ Excerpt:
 docker-compose up -d
 
 # Make (generates Swagger, builds and runs)
-make install-tools
 make run
 
-# Manual
-swag init -g cmd/server/main.go -o docs
+# Manual (swag is a Go tool declared in go.mod, no separate install needed)
+go tool swag init -g cmd/server/main.go -o docs
 go build -o http-header-security-scanner ./cmd/server
 ./http-header-security-scanner
 ```

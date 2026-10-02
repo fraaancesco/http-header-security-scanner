@@ -7,7 +7,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
-	"sort"
+	"slices"
 	"strings"
 	"sync"
 	"testing"
@@ -78,7 +78,7 @@ func TestRunTextFromURL(t *testing.T) {
 			t.Errorf("output missing %q:\n%s", want, out)
 		}
 	}
-	sort.Strings(*seen)
+	slices.Sort(*seen)
 	got := strings.Join(*seen, ",")
 	if got != "/api/secure Bearer tok,/api/users/42 Bearer tok" {
 		t.Errorf("requests = %s", got)

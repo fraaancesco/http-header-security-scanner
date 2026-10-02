@@ -38,8 +38,7 @@ func Scan(url string, opts Options) models.ScanResult {
 
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
-		errStr := err.Error()
-		result.Error = &errStr
+		result.Error = new(err.Error())
 		return result
 	}
 
@@ -49,8 +48,7 @@ func Scan(url string, opts Options) models.ScanResult {
 
 	resp, err := client.Do(req)
 	if err != nil {
-		errStr := err.Error()
-		result.Error = &errStr
+		result.Error = new(err.Error())
 		return result
 	}
 	defer resp.Body.Close()

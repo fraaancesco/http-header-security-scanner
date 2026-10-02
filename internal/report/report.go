@@ -2,10 +2,11 @@
 package report
 
 import (
+	"cmp"
 	"encoding/json"
 	"fmt"
 	"io"
-	"sort"
+	"slices"
 	"strings"
 	"text/tabwriter"
 
@@ -77,12 +78,11 @@ func New(source, base string, endpoints []spec.Endpoint, results []models.ScanRe
 		r.Counts[class]++
 		r.Entries = append(r.Entries, Entry{Endpoint: e, Class: class, Result: results[i]})
 	}
-	sort.SliceStable(r.Entries, func(i, j int) bool {
-		ri, rj := Rank(r.Entries[i].Class), Rank(r.Entries[j].Class)
-		if ri != rj {
-			return ri > rj
-		}
-		return r.Entries[i].Path < r.Entries[j].Path
+	slices.SortStableFunc(r.Entries, func(a, b Entry) int {
+		return cmp.Or(
+			cmp.Compare(Rank(b.Class), Rank(a.Class)),
+			strings.Compare(a.Path, b.Path),
+		)
 	})
 	return r
 }
