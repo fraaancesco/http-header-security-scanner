@@ -5,6 +5,7 @@ type HeaderResult struct {
 	Present        bool     `json:"present"`
 	Value          *string  `json:"value"`
 	Severity       Severity `json:"severity"`
+	Risk           *string  `json:"risk,omitempty"`
 	Recommendation *string  `json:"recommendation,omitempty"`
 }
 

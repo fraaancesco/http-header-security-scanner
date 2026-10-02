@@ -35,7 +35,7 @@ func TestScanAllHeadersPresent(t *testing.T) {
 		t.Errorf("URL/StatusCode = %q/%d", res.URL, res.StatusCode)
 	}
 	for _, h := range res.Headers {
-		if !h.Present || h.Value == nil || *h.Value != "x" || h.Severity != models.SeverityOK || h.Recommendation != nil {
+		if !h.Present || h.Value == nil || *h.Value != "x" || h.Severity != models.SeverityOK || h.Risk != nil || h.Recommendation != nil {
 			t.Errorf("header %q not reported as present: %+v", h.Name, h)
 		}
 	}
@@ -67,7 +67,7 @@ func TestScanMissingHeaders(t *testing.T) {
 			}
 			continue
 		}
-		if h.Present || h.Value != nil || h.Severity != def.Severity || h.Recommendation == nil || *h.Recommendation != def.Recommendation {
+		if h.Present || h.Value != nil || h.Severity != def.Severity || h.Recommendation == nil || *h.Recommendation != def.Recommendation || h.Risk == nil || *h.Risk != def.Risk {
 			t.Errorf("header %q not reported as missing: %+v", h.Name, h)
 		}
 	}

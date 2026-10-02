@@ -49,7 +49,7 @@ hscan -spec <file-or-url> [-base <url>] [-param id=<real id>] -format markdown -
 Use only the summary printed on stdout; do not open the Markdown file unless the user asks. Reply with:
 
 1. the totals per class and the path of `security-headers-report.md`;
-2. the critical/high headers missing on every endpoint: they are usually fixed once, so find where the project sets response headers (middleware, reverse proxy config) and point to it;
+2. the critical/high headers missing on every endpoint, each with one short line on what it exposes the site to (the report has the full risk and recommendation): they are usually fixed once, so find where the project sets response headers (middleware, reverse proxy config) and point to it;
 3. the endpoints that miss more than the others;
 4. the errors, with the likely cause (app not running, wrong base URL, placeholder parameter).
 

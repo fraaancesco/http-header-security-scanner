@@ -1,4 +1,4 @@
-.PHONY: build run swagger clean install-tools test coverage
+.PHONY: build run swagger clean install-tools test coverage install-hscan install-skill
 
 BINARY_NAME=http-header-security-scanner
 MAIN_PATH=./cmd/server
@@ -39,6 +39,15 @@ clean:
 # Installa tool necessari
 install-tools:
 	go install github.com/swaggo/swag/cmd/swag@latest
+
+# Installa la CLI hscan in $(go env GOPATH)/bin
+install-hscan:
+	go install ./cmd/hscan
+
+# Installa la skill header-scan per tutti i progetti (~/.claude/skills)
+install-skill:
+	mkdir -p $(HOME)/.claude/skills
+	cp -r .claude/skills/header-scan $(HOME)/.claude/skills/
 
 # Rigenera tutto da zero
 rebuild: clean build

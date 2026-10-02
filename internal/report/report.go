@@ -161,9 +161,19 @@ func (r *Report) WriteText(w io.Writer) error {
 	return tw.Flush()
 }
 
-// WriteMarkdown writes a shareable report: totals, one table row per
-// endpoint, the headers missing everywhere with their recommendation, the
-// per-endpoint differences and the errors.
+// classMeaning explains each class in the Markdown report.
+var classMeaning = map[models.Severity]string{
+	SeverityError:           "Could not be reached, so it was not checked.",
+	models.SeverityCritical: "Exposed to direct attacks such as HTTPS downgrade and unrestricted script injection.",
+	models.SeverityHigh:     "Exposed to clickjacking, MIME sniffing or cross-origin attacks.",
+	models.SeverityMedium:   "Exposed to data leaks through referrers, caches or browser features.",
+	models.SeverityLow:      "Only legacy-browser hardening or monitoring headers are missing.",
+	models.SeverityOK:       "Every checked header is present.",
+}
+
+// WriteMarkdown writes a shareable report: totals with their meaning, one
+// table row per endpoint, the headers missing everywhere, the per-endpoint
+// differences, the risk and fix of every missing header, and the errors.
 func (r *Report) WriteMarkdown(w io.Writer) error {
 	var b strings.Builder
 
@@ -174,11 +184,12 @@ func (r *Report) WriteMarkdown(w io.Writer) error {
 	fmt.Fprintf(&b, "- **Spec:** `%s`\n", r.Source)
 	fmt.Fprintf(&b, "- **Base URL:** `%s`\n", r.Base)
 	fmt.Fprintf(&b, "- **Endpoints:** %d (GET only, no request bodies)\n\n", len(r.Entries))
-	b.WriteString("Each endpoint is classified by the worst severity among its missing headers; `error` means it could not be reached.\n\n")
+	b.WriteString("Each endpoint is classified by the most severe header it is missing. ")
+	b.WriteString("This report covers HTTP security headers only; it is not a complete security review.\n\n")
 
-	b.WriteString("## Totals\n\n| Class | Endpoints |\n|---|---|\n")
+	b.WriteString("## Totals\n\n| Class | Endpoints | Meaning |\n|---|---|---|\n")
 	for _, c := range Classes {
-		fmt.Fprintf(&b, "| %s | %d |\n", c, r.Counts[c])
+		fmt.Fprintf(&b, "| %s | %d | %s |\n", c, r.Counts[c], classMeaning[c])
 	}
 
 	b.WriteString("\n## Endpoints\n\n| Class | Score | Status | Methods | Path |\n|---|---|---|---|---|\n")
@@ -194,10 +205,10 @@ func (r *Report) WriteMarkdown(w io.Writer) error {
 	if len(common) > 0 {
 		b.WriteString("\n## Missing on every reachable endpoint\n\n")
 		b.WriteString("These are usually fixed once, in a shared middleware or in the reverse proxy.\n\n")
-		b.WriteString("| Severity | Header | Recommendation |\n|---|---|---|\n")
-		for _, h := range models.SecurityHeaders {
-			if common[h.Name] {
-				fmt.Fprintf(&b, "| %s | `%s` | %s |\n", h.Severity, h.Name, strings.ReplaceAll(h.Recommendation, "|", "\\|"))
+		b.WriteString("| Severity | Headers |\n|---|---|\n")
+		for _, sev := range Classes[1:5] {
+			if names := missingOf(common, sev); len(names) > 0 {
+				fmt.Fprintf(&b, "| %s | %s |\n", sev, "`"+strings.Join(names, "`, `")+"`")
 			}
 		}
 	}
@@ -206,6 +217,25 @@ func (r *Report) WriteMarkdown(w io.Writer) error {
 		b.WriteString("\n## Also missing on single endpoints\n\n")
 		for _, x := range extras {
 			fmt.Fprintf(&b, "- `%s`: %s\n", x.path, x.text)
+		}
+	}
+
+	if missing := r.missingOn(); len(missing) > 0 {
+		b.WriteString("\n## Risks and recommendations\n\n")
+		b.WriteString("What each missing header exposes you to, most severe first, and how to fix it.\n")
+		for _, h := range models.SecurityHeaders {
+			paths, ok := missing[h.Name]
+			if !ok {
+				continue
+			}
+			where := "all reachable endpoints"
+			if !common[h.Name] {
+				where = "`" + strings.Join(paths, "`, `") + "`"
+			}
+			fmt.Fprintf(&b, "\n### `%s` (%s)\n\n", h.Name, h.Severity)
+			fmt.Fprintf(&b, "- **Risk:** %s\n", h.Risk)
+			fmt.Fprintf(&b, "- **Recommendation:** %s\n", h.Recommendation)
+			fmt.Fprintf(&b, "- **Missing on:** %s\n", where)
 		}
 	}
 
@@ -220,6 +250,23 @@ func (r *Report) WriteMarkdown(w io.Writer) error {
 
 	_, err := io.WriteString(w, b.String())
 	return err
+}
+
+// missingOn maps each header missing on at least one reachable endpoint to
+// the paths that miss it.
+func (r *Report) missingOn() map[string][]string {
+	out := map[string][]string{}
+	for _, e := range r.Entries {
+		if e.Result.Error != nil {
+			continue
+		}
+		for _, h := range e.Result.Headers {
+			if !h.Present {
+				out[h.Name] = append(out[h.Name], e.Path)
+			}
+		}
+	}
+	return out
 }
 
 type extra struct{ path, text string }

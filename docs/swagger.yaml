@@ -38,6 +38,8 @@ definitions:
         type: boolean
       recommendation:
         type: string
+      risk:
+        type: string
       severity:
         $ref: '#/definitions/models.Severity'
       value:

@@ -33,8 +33,8 @@ func TestSecurityHeadersAreWellFormed(t *testing.T) {
 	}
 	seen := map[string]bool{}
 	for _, h := range SecurityHeaders {
-		if h.Name == "" || h.Recommendation == "" {
-			t.Errorf("header %+v has empty name or recommendation", h)
+		if h.Name == "" || h.Risk == "" || h.Recommendation == "" {
+			t.Errorf("header %+v has empty name, risk or recommendation", h)
 		}
 		if seen[h.Name] {
 			t.Errorf("duplicate header %q", h.Name)

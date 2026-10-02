@@ -118,6 +118,9 @@ const docTemplate = `{
                 "recommendation": {
                     "type": "string"
                 },
+                "risk": {
+                    "type": "string"
+                },
                 "severity": {
                     "$ref": "#/definitions/models.Severity"
                 },

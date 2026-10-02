@@ -162,12 +162,19 @@ func TestWriteMarkdown(t *testing.T) {
 		"# HTTP security headers report",
 		"- **Date:** 2026-01-01T00:00:00Z",
 		"- **Endpoints:** 4",
-		"| error | 1 |",
+		"| error | 1 | Could not be reached",
+		"| critical | 3 | Exposed to direct attacks",
 		"| critical | x% | 200 | GET, POST | `/a` |",
 		"| error | - | - | GET, POST | `/down` |",
-		"| critical | `Content-Security-Policy` | Add Content-Security-Policy",
+		"| critical | `Content-Security-Policy` |",
 		"| low | `NEL` |",
 		"- `/a`: high: X-Frame-Options; medium: Referrer-Policy",
+		"## Risks and recommendations",
+		"### `Content-Security-Policy` (critical)\n\n- **Risk:** There is no second line of defence",
+		"- **Recommendation:** Add Content-Security-Policy",
+		"- **Missing on:** all reachable endpoints",
+		"### `Referrer-Policy` (medium)",
+		"- **Missing on:** `/a`, `/b`",
 		"## Errors\n\n- `/down`: connection refused",
 	} {
 		if !strings.Contains(out, want) {
@@ -182,7 +189,7 @@ func TestWriteMarkdownMinimal(t *testing.T) {
 	if err := r.WriteMarkdown(&buf); err != nil {
 		t.Fatal(err)
 	}
-	for _, unwanted := range []string{"**Date:**", "## Missing", "## Also", "## Errors"} {
+	for _, unwanted := range []string{"**Date:**", "## Missing", "## Also", "## Risks", "## Errors"} {
 		if strings.Contains(buf.String(), unwanted) {
 			t.Errorf("unexpected %q:\n%s", unwanted, buf.String())
 		}

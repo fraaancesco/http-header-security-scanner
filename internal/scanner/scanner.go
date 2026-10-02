@@ -78,6 +78,7 @@ func checkHeaders(respHeaders http.Header) []models.HeaderResult {
 		} else {
 			headerResult.Present = false
 			headerResult.Severity = secHeader.Severity
+			headerResult.Risk = &secHeader.Risk
 			headerResult.Recommendation = &secHeader.Recommendation
 		}
 
