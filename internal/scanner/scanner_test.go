@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"http-header-security-scanner/pkg/models"
+	"github.com/fraaancesco/http-header-security-scanner/pkg/models"
 )
 
 func TestDefaultOptions(t *testing.T) {

@@ -3,9 +3,9 @@ package main
 import (
 	"log"
 
-	_ "http-header-security-scanner/docs"
-	"http-header-security-scanner/internal/config"
-	"http-header-security-scanner/internal/handler"
+	_ "github.com/fraaancesco/http-header-security-scanner/docs"
+	"github.com/fraaancesco/http-header-security-scanner/internal/config"
+	"github.com/fraaancesco/http-header-security-scanner/internal/handler"
 
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"

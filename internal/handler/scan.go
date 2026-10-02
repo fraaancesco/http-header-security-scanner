@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"time"
 
-	"http-header-security-scanner/internal/scanner"
-	"http-header-security-scanner/pkg/models"
+	"github.com/fraaancesco/http-header-security-scanner/internal/scanner"
+	"github.com/fraaancesco/http-header-security-scanner/pkg/models"
 
 	"github.com/gin-gonic/gin"
 )

@@ -1,4 +1,4 @@
-module http-header-security-scanner
+module github.com/fraaancesco/http-header-security-scanner
 
 go 1.25.5
 

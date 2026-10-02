@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"http-header-security-scanner/internal/config"
+	"github.com/fraaancesco/http-header-security-scanner/internal/config"
 
 	"github.com/gin-gonic/gin"
 )
