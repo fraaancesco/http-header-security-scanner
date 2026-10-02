@@ -133,6 +133,49 @@ Environment variables:
 | `SCANNER_TIMEOUT` | 10 | Default scan timeout in seconds |
 | `SCANNER_INSECURE` | false | Default TLS verification setting |
 
+## Scan a whole API from its Swagger/OpenAPI spec (`hscan`)
+
+`hscan` reads a Swagger 2.0 or OpenAPI 3 document (JSON or YAML, file or URL), calls every documented path and classifies each endpoint by the worst severity among its missing headers: `error`, `critical`, `high`, `medium`, `low` or `ok`.
+
+```bash
+go install github.com/fraaancesco/http-header-security-scanner/cmd/hscan@latest
+
+# Compact summary on stdout
+hscan -spec docs/swagger.json -base http://localhost:8081
+
+# Markdown report (the summary still goes to stdout)
+hscan -spec http://localhost:8080/v3/api-docs -format markdown -out security-headers-report.md
+
+# CI: exit 1 if any endpoint is high or worse
+hscan -spec openapi.yaml -fail-on high
+```
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `-spec` | (required) | Spec file path or http(s) URL |
+| `-base` | server in the spec | Base URL; replaces scheme and host, keeps the spec's base path unless it has its own |
+| `-param name=value` | `1` | Value for a path parameter, repeatable |
+| `-token` | `$HSCAN_TOKEN` | Bearer token sent to every endpoint |
+| `-format` | `text` | `text`, `markdown` or `json` |
+| `-out` | stdout | Write the report to a file |
+| `-fail-on` | `none` | Exit 1 if an endpoint is at or above this class |
+| `-timeout` / `-concurrency` / `-insecure` | `10` / `8` / `false` | Per-request timeout (s), parallel requests, skip TLS verification |
+
+Only GET requests are sent, without a body, so documented POST/PUT/DELETE routes are never triggered (they may answer 405, but their headers are still checked). Exit codes: `0` ok, `1` `-fail-on` threshold reached, `2` invalid input.
+
+### Claude Code skill
+
+`.claude/skills/header-scan/SKILL.md` makes Claude find the project's spec, run `hscan` once and summarize the result, instead of inspecting every endpoint by hand. To use it in another project, copy the folder:
+
+```bash
+# for one project
+cp -r .claude/skills/header-scan <project>/.claude/skills/
+# for every project
+cp -r .claude/skills/header-scan ~/.claude/skills/
+```
+
+Then ask Claude something like "scan the API security headers" or run `/header-scan`.
+
 ## Testing
 
 ```bash
@@ -146,13 +189,17 @@ make coverage
 ## Project Structure
 
 ```
-├── cmd/server/          # Application entry point
+├── cmd/server/          # API server entry point
+├── cmd/hscan/           # CLI: scan every endpoint of a Swagger/OpenAPI spec
 ├── internal/
 │   ├── config/          # Configuration management
 │   ├── handler/         # HTTP handlers
-│   └── scanner/         # Scanning logic
+│   ├── report/          # Endpoint classification and text/Markdown/JSON reports
+│   ├── scanner/         # Scanning logic
+│   └── spec/            # Swagger/OpenAPI parsing
 ├── pkg/models/          # Shared models
 ├── docs/                # Swagger documentation (generated)
+├── .claude/skills/      # Claude Code skill (header-scan)
 ├── Dockerfile
 ├── docker-compose.yml
 └── Makefile
